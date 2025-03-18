@@ -62,9 +62,8 @@ public class SocialMediaController {
     }
 
     @DeleteMapping("/messages/{id}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable Integer id) {
-        messageService.deleteMessage(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Integer> deleteMessage(@PathVariable Integer id) {
+        return ResponseEntity.ok(messageService.deleteMessage(id));
     }
 
     @PatchMapping("/messages/{id}")

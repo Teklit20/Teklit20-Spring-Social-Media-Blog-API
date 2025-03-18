@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 import com.example.entity.Message;
 
@@ -14,10 +15,18 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     public Message createMessage(Message message) {
         if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }        
+        // Check if user exists
+        if (!accountRepository.existsById(message.getPostedBy())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does't exist");
         }
+    
         return messageRepository.save(message);
     }
 
@@ -29,8 +38,12 @@ public class MessageService {
         return messageRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public void deleteMessage(Integer id) {
-        messageRepository.deleteById(id);
+    public Integer deleteMessage(Integer id) {
+        if (messageRepository.existsById(id)) {
+            messageRepository.deleteById(id);
+            return 1; //1 row deleted
+        }
+        return null;
     }
 
     public Message updateMessage(Integer id, Message message) {
