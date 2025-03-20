@@ -35,7 +35,7 @@ public class MessageService {
     }
 
     public Message getMessageById(Integer id) {
-        return messageRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return messageRepository.findById(id).orElse(null);
     }
 
     public Integer deleteMessage(Integer id) {
@@ -46,13 +46,18 @@ public class MessageService {
         return null;
     }
 
-    public Message updateMessage(Integer id, Message message) {
-        Message existingMessage = getMessageById(id);
-        if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    public Integer updateMessage(Integer id, Message message) {
+        Message existingMessage = messageRepository.findById(id).orElse(null);
+        if (existingMessage == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Message not found");
         }
+        if (message.getMessageText().isBlank() || message.getMessageText().length() > 255) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid message");
+        }
+
         existingMessage.setMessageText(message.getMessageText());
-        return messageRepository.save(existingMessage);
+        messageRepository.save(existingMessage);
+        return 1;
     }
 
     public List<Message> getMessagesByUserId(Integer userId) {

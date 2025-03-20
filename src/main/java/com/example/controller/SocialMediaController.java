@@ -58,7 +58,8 @@ public class SocialMediaController {
 
     @GetMapping("/messages/{id}")
     public ResponseEntity<Message> getMessageById(@PathVariable Integer id) {
-        return ResponseEntity.ok(messageService.getMessageById(id));
+        Message message = messageService.getMessageById(id);
+        return message == null ? ResponseEntity.ok().build() : ResponseEntity.ok(message);
     }
 
     @DeleteMapping("/messages/{id}")
@@ -67,8 +68,9 @@ public class SocialMediaController {
     }
 
     @PatchMapping("/messages/{id}")
-    public ResponseEntity<Message> updateMessage(@PathVariable Integer id, @RequestBody Message message) {
-        return ResponseEntity.ok(messageService.updateMessage(id, message));
+    public ResponseEntity<?> updateMessage(@PathVariable Integer id, @RequestBody Message message) {
+        Integer updatedRows = messageService.updateMessage(id, message);
+        return updatedRows == 1 ? ResponseEntity.ok(1) : ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/accounts/{id}/messages")
